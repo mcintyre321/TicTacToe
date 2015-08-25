@@ -9,6 +9,8 @@ namespace TicTacToe
 {
     public class TicTacToeGame : IGameInstance, IMoveBasedGame, IRenderableGridGame
     {
+        public const string DrawMessage = "The game has been drawn.";
+        public const string WinMessage = "{0} has won the game.";
         private readonly Player _player1;
         private readonly Player _player2;
         private readonly Func<DateTimeOffset> _getTime;
@@ -47,12 +49,12 @@ namespace TicTacToe
 
 
             var numberOfMovesSoFar = Squares.Count(sq => sq != ' ');
-            var nextPlayer = numberOfMovesSoFar%2 == 0 ? _player1 : _player2;
+            var nextPlayer = numberOfMovesSoFar % 2 == 0 ? _player1 : _player2;
 
             //No moves are available to players whos turn it aint
             if (nextPlayer != player) return new List<IMove>();
 
-            var nextPlayerSymbol = numberOfMovesSoFar%2 == 0 ? 'x' : 'o';
+            var nextPlayerSymbol = numberOfMovesSoFar % 2 == 0 ? 'x' : 'o';
 
             return Squares
                 .Select((c, i) => c == ' ' ? new TicTacToeMove(this, i, nextPlayerSymbol) : null)
@@ -74,11 +76,11 @@ namespace TicTacToe
         {
             if (this.CheckForVictory(symbol))
             {
-                this.completionMessage = symbol + " has won the game.";
+                this.completionMessage = string.Format(WinMessage, symbol);
             }
             else if (this.CheckForStalemate())
             {
-                completionMessage = "The game has been drawn.";
+                completionMessage = DrawMessage;
             }
         }
 
@@ -99,7 +101,7 @@ namespace TicTacToe
             return c == Squares[i] && c == Squares[i1] && c == Squares[i2];
         }
 
-      
+
     }
 
     public class GridGameRenderer
@@ -112,7 +114,7 @@ namespace TicTacToe
             {
                 for (var col = 0; col < g.NumberOfCols; col++)
                 {
-                    output.Append(g.Squares[col + g.NumberOfCols*row].ToString());
+                    output.Append(g.Squares[col + g.NumberOfCols * row].ToString());
                 }
                 output.Append(Environment.NewLine);
             }

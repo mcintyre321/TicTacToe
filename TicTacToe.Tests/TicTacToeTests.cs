@@ -33,16 +33,45 @@ namespace TicTacToe.Tests
             }
         }
 
+        /// In the interests of saving time I have only a few states tests
+        /// 
+        /// 
+
+        [TestCase("xxxoo    ", true, "x", Description = "top line can win game for x")] 
+        [TestCase("oooxx x  ", true, "o", Description = "top line can win game for o")]
+        [TestCase(" ox xox  ", false, null, Description = "reverse diagonal can win for x")] 
+        [TestCase("         ", false, null, Description = "empty board is still in progress")] 
+        [TestCase(" x o   x ", false, null, Description = "partial board is still in progress")] 
+        [TestCase("oxoxxoxox", true, null, Description = "draw")] 
+        public void GameDetectsWinStatesCorrectly(string board, bool isComplete, string winner)
+        {
+            //When a game is created with a game layout
+            var selfAdvancingClock = new SelfAdvancingClock();
+            var game = new TicTacToeGame(board, new Player(m => m.First()), new Player(m => m.First()), () => selfAdvancingClock.GetTime());
+
+            //Then the game should be marked as in progress correctly
+            Assert.AreEqual(!isComplete, game.IsInProgress);
+
+            //And the game state should reflect the result of the game if the game is complete
+            if (isComplete)
+            {
+                var expectedMessage = string.IsNullOrWhiteSpace(winner)
+                    ? TicTacToeGame.DrawMessage
+                    : string.Format(TicTacToeGame.WinMessage, winner);
+                Assert.AreEqual(expectedMessage, ((IRenderableGridGame) game).StatusMessage);
+            }
+        }
+
         [Test]
-        public void GameDetectsWinStatesCorrectly()
+        public void GameDetectsDrawStatesCorrectly()
         {
             //When a game is created with a winning game layout
             var selfAdvancingClock = new SelfAdvancingClock();
             var game = new TicTacToeGame("xxxoo    ", new Player(m => m.First()), new Player(m => m.First()), () => selfAdvancingClock.GetTime());
-            
+
             //Then the game state should reflect this
             var lastLine = game.GameStateAsRenderableString
-                .Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 .Last();
             Assert.AreEqual("x has won the game.", lastLine);
             //And the game should be marked as in progress correctly
